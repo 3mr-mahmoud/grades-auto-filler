@@ -1,0 +1,57 @@
+# Python bytecode files
+*.pyc
+*.pyo
+__pycache__/
+
+# Virtual environment directories
+venv/
+env/
+.venv/
+.env/
+
+# Distribution / packaging
+*.egg
+*.egg-info/
+dist/
+build/
+*.tar.gz
+*.whl
+
+# Python Wheels
+*.dist-info/
+*.egg-info/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# VS Code settings
+.vscode/
+
+# PyCharm settings
+.idea/
+
+# macOS system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+
+# Pycharm VirtualEnv
+.vscode/
+
+# Testing files
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+*.pot
+*.mo
+
+# Mypy
+.mypy_cache/
+
+# Pytest
+.cache/
+
+# C extensions
+*.so
