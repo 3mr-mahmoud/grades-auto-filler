@@ -1,6 +1,8 @@
 import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
+from numpy import histogram
+from matplotlib.pyplot import bar
 
 # Read RGB image uisng CV and result is a RGB image
 def Read_RGB_Image(path):

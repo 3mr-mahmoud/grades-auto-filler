@@ -1,18 +1,26 @@
 import cv2
 import numpy as np
 
-def extract_paper(image_path, output_path=None):
+def extract_paper(image_path):
     # Step 1: Load the image
-    image = cv2.imread(image_path)
+    image = cv2.imread(image_path, cv2.IMREAD_COLOR)
     orig = image.copy()
     
     # Step 2: Preprocess the image
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-    edged = cv2.Canny(blurred, 50, 150)
+    
+    blurred = cv2.GaussianBlur(gray, (7, 7), 1)
+    edged = cv2.Canny(blurred, 30, 255)
+    
+    # we need to apply closing operation to close the gaps between the edges
+    kernel = np.ones((15,15),np.uint8)
+    dilated_img = cv2.dilate(edged,kernel,iterations=2)
+    erroded_img = cv2.erode(dilated_img,kernel,iterations=1)
+
+    contrours_img=np.copy(erroded_img)
 
     # Step 3: Find contours
-    contours, _ = cv2.findContours(edged, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(contrours_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contours = sorted(contours, key=cv2.contourArea, reverse=True)
 
     paper_contour = None
@@ -43,6 +51,8 @@ def extract_paper(image_path, output_path=None):
         
         return rect
 
+    
+
     paper_contour = paper_contour.reshape(4, 2)
     rect = order_points(paper_contour)
     (tl, tr, br, bl) = rect
@@ -59,19 +69,11 @@ def extract_paper(image_path, output_path=None):
     # Perspective transformation
     dst = np.array([
         [0, 0],
-        [maxWidth - 1, 0],
-        [maxWidth - 1, maxHeight - 1],
-        [0, maxHeight - 1]
+        [maxWidth, 0],
+        [maxWidth, maxHeight],
+        [0, maxHeight]
     ], dtype="float32")
     M = cv2.getPerspectiveTransform(rect, dst)
     warped = cv2.warpPerspective(orig, M, (maxWidth, maxHeight))
-
-    # Step 5: Save or display the result
-    # if output_path:
-    #     cv2.imwrite(output_path, warped)
-    # else:
-    #     cv2.imshow("Warped Image", warped)
-    #     cv2.waitKey(0)
-    #     cv2.destroyAllWindows()
     
     return warped
