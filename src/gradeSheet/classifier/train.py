@@ -64,7 +64,5 @@ def train(path_to_dataset=path):
     # Evaluate the model
     predictions = model.predict(test_features)
     print("Accuracy:", accuracy_score(test_labels, predictions))
-    print("\nClassification Report:")
-    print(classification_report(test_labels, predictions))
 
     return model

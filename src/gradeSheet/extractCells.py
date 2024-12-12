@@ -40,7 +40,6 @@ def threshold_intersections(pixels,ignoreCornerPoint= False, widthThresholdLow=2
         if (heightThresholdLow < (yPixels[i+1] - yPixels[i]) and (yPixels[i+1] - yPixels[i]) < heightThresholdHigh):
             if(ignoreCornerPoint and yPixels[i] < 40):
                 continue
-            print("firstRow", yPixels[i])
             rows.append(yMap[yPixels[i]])
             firstRowIndex = i
             break
@@ -51,7 +50,6 @@ def threshold_intersections(pixels,ignoreCornerPoint= False, widthThresholdLow=2
             rows.append(yMap[yPixels[i]])
 
     # Now we need to threshold the columns i.e the x values
-    print("Rows: ", rows)
     allIntersections = []
     index = 0
     for row in rows:
@@ -80,9 +78,7 @@ def extract_cells(paper):
 
     _,binary = cv2.threshold(grayPaper,128,255,cv2.THRESH_BINARY | cv2.THRESH_OTSU)
     binary = 255 - binary
-    show_images([grayPaper, binary])
 
-    print("Binary shape: " + str(binary.shape))
 
     kernelLength = np.array(binary).shape[1] // 10
 
@@ -107,22 +103,17 @@ def extract_cells(paper):
 
     # Combine the two images to get the final lines image
     intersections = cv.bitwise_and(verticalLinesImg, horizontalLinesImg)
-    show_images([intersections])
-    print(grayPaper.shape)
      # Apply a threshold to detect white areas
 
     _, thresholded = cv2.threshold(grayPaper, 160, 255, cv2.THRESH_BINARY)
-    show_images([thresholded])
     # Calculate the number of white pixels
     white_pixels = np.sum(thresholded == 255)
     total_pixels = thresholded.size
     white_percentage = (white_pixels / total_pixels) * 100
-    print("White percentage: " + str(white_percentage))
 
     ignoreCornerPoint = white_percentage > 82
     intersections = threshold_intersections(intersections,ignoreCornerPoint=ignoreCornerPoint)
 
-    print(intersections)
 
     cells = []
     rows = len(intersections) - 1
@@ -134,10 +125,6 @@ def extract_cells(paper):
             _, y2 = intersections[i + 1][j]
             cells.append((x1, y1, x2 - x1, y2 - y1))
 
-    for i in range(len(cells)):
-        x, y, w, h = cells[i]
-        print("Cell " + str(i) + ": x=" + str(x) + " y=" + str(y) + " w=" + str(w) + " h=" + str(h))
-        show_images([paper[y:y + h, x:x + w]])
 
     cellImgs = []
     for x, y, w, h in cells:
