@@ -6,6 +6,5 @@ def predictGeneral(cell, model):
     # Reshape the feature to be 2D (1 sample, n features)
     hogFeatures = hogFeatures.reshape(1, -1)
     prediction = model.predict(hogFeatures)
-    print("Prediction: ", prediction[0])
-    return prediction
+    return prediction[0]
     

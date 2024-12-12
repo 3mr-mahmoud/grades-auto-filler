@@ -115,20 +115,21 @@ def extract_cells(paper):
     intersections = threshold_intersections(intersections,ignoreCornerPoint=ignoreCornerPoint)
 
 
-    cells = []
+
     rows = len(intersections) - 1
     cols = len(intersections[0]) - 1
+    df = pd.DataFrame(index=range(rows), columns=range(cols))
+
     for i in range(rows):
         for j in range(len(intersections[i]) - 1):
             x1, y1 = intersections[i][j]
             x2, _ = intersections[i][j + 1]
             _, y2 = intersections[i + 1][j]
-            cells.append((x1, y1, x2 - x1, y2 - y1))
+            w = x2 - x1
+            h = y2 - y1
+            x = x1
+            y = y1
+            cell_img = grayPaper[y:y + h, x:x + w]
+            df.iloc[i, j] = cell_img
 
-
-    cellImgs = []
-    for x, y, w, h in cells:
-        cell_img = grayPaper[y:y + h, x:x + w]
-        cellImgs.append(cell_img)
-
-    return cellImgs, rows, cols
+    return df, rows, cols
