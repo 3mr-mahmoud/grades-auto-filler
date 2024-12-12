@@ -55,3 +55,6 @@ coverage.xml
 
 # C extensions
 *.so
+
+digits_dataset/
+symbols_dataset/
