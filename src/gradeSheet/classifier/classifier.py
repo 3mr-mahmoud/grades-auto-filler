@@ -1,15 +1,8 @@
-from gradeSheet.classifier.train import train
 from gradeSheet.classifier.predict import predictGeneral
-from utils.paper_extraction import *
-from utils.commonfunctions import *
-from gradeSheet.extractCells import extract_cells
-import cv2
-import pandas as pd
 
-import pandas as pd
-
-def createTable(image, digitsModel, symbolsModel):
-    df, rows, cols = extract_cells(image)
+def processCells(df, digitsModel, symbolsModel):
+    rows = df.shape[0]
+    cols = df.shape[1]
     for i in range(1, rows):
         for j in range(3, cols):
             cell = df.iloc[i, j]
@@ -24,7 +17,6 @@ def createTable(image, digitsModel, symbolsModel):
                     number = ord(predection) - ord('a') + 1 
                     df.iloc[i, j] = number
                 else:
-                    show_images([cell])
                     predection = predictGeneral(cell, symbolsModel)
                     if(predection=="T"):
                         df.iloc[i, j] = 5
@@ -39,12 +31,8 @@ def createTable(image, digitsModel, symbolsModel):
                         number = int(predection[1])
                         if(char=='H'):
                             df.iloc[i, j] = 5 - number
-                            print(predection)
                         else:
                             df.iloc[i, j] = number
-                            print(predection)
-
-    print(df)
     return df
 
 

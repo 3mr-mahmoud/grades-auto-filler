@@ -119,7 +119,7 @@ def extract_cells(paper):
     rows = len(intersections) - 1
     cols = len(intersections[0]) - 1
     df = pd.DataFrame(index=range(rows), columns=range(cols))
-
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 1))
     for i in range(rows):
         for j in range(len(intersections[i]) - 1):
             x1, y1 = intersections[i][j]
@@ -129,7 +129,11 @@ def extract_cells(paper):
             h = y2 - y1
             x = x1
             y = y1
-            cell_img = grayPaper[y:y + h, x:x + w]
+            cell_img = binary[y:y + h, x:x + w]
+            cell_img = cv2.resize(cell_img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+            cell_img = cv2.dilate(cell_img, kernel, iterations=2)
+            cell_img = cv2.erode(cell_img, kernel, iterations=1)
+        
             df.iloc[i, j] = cell_img
 
     return df, rows, cols
