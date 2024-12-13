@@ -25,6 +25,31 @@ def show_images(images,titles=None):
 def processCells(df, digitsModel, symbolsModel):
     rows = df.shape[0]
     cols = df.shape[1]
+    code = ""
+    index = 1
+    print(rows)
+    for i in range(1, rows):
+        cell = df.iloc[i, 0]
+        top, bottom, left, right = 15, 9, 15, 10
+        height, width = cell.shape[:2]
+        cell = cell[top:height-bottom, left:width-right]
+        cell = cv2.threshold(cell, 100, 255, cv2.THRESH_BINARY)[1]
+        cell = cv2.erode(cell, (3, 3), iterations=4)
+        contours, _ = cv2.findContours(cell, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        MIN_AREA = 50  # Minimum area threshold for valid digits
+        digit_contours = [cnt for cnt in contours if cv2.contourArea(cnt) > MIN_AREA]
+        digit_contours = sorted(digit_contours, key=lambda c: cv2.boundingRect(c)[0])
+        for i, contour in enumerate(digit_contours):
+            x, y, w, h = cv2.boundingRect(contour)  # Bounding box
+            digit = cell[y:y+h, x:x+w]           # Crop the digit region
+            digit = cv2.GaussianBlur(digit, (3, 3), 0)
+            digit = cv2.threshold(digit, 100, 255, cv2.THRESH_BINARY)[1]
+            predection = predictGeneral(digit, digitsModel)
+            code += predection
+        show_images([cell], [code])
+        df.iloc[i, 0] = code
+        code = ""
+       
     for i in range(1, rows):
         for j in range(3, cols):
             cell = df.iloc[i, j]
@@ -48,7 +73,7 @@ def processCells(df, digitsModel, symbolsModel):
                     #number = ord(predection) - ord('a') + 1 
                     number = ord(predection) - ord('0') 
                     df.iloc[i, j] = number
-                    show_images([cell],[predection])
+                    #show_images([cell],[number])
                 else:
                     predection = predictGeneral(cell, symbolsModel)
                     if(predection=="T"):
