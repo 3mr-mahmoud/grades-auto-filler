@@ -9,14 +9,14 @@ import random
 # Resolve dataset path
 path = "../../../Dataset/Training Set/digits_dataset"
 
-target_img_size = (32, 32)
+target_img_size = (28, 28)
 random_seed = 42
 random.seed(random_seed)
 np.random.seed(random_seed)
 
 def extract_hog_features(img):
     img = cv2.resize(img, target_img_size)
-    win_size = (32, 32)
+    win_size = (28, 28)
     cell_size = (4, 4)
     block_size_in_cells = (2, 2)
     

@@ -59,3 +59,5 @@ coverage.xml
 digits_dataset/
 symbols_dataset/
 all_dataset/
+digits_dataset2/
+src/output.xlsx
