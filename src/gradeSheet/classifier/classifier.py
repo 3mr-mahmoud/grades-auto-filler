@@ -4,33 +4,26 @@ import numpy as np
 import cv2
 
 
-def show_images(images,titles=None):
-    #This function is used to show image(s) with titles by sending an array of images and an array of associated titles.
-    # images[0] will be drawn with the title titles[0] if exists
-    # You aren't required to understand this function, use it as-is.
-    n_ims = len(images)
-    if titles is None: titles = ['(%d)' % i for i in range(1,n_ims + 1)]
-    fig = plt.figure()
-    n = 1
-    for image,title in zip(images,titles):
-        a = fig.add_subplot(1,n_ims,n)
-        if image.ndim == 2: 
-            plt.gray()
-        plt.imshow(image)
-        a.set_title(title)
-        n += 1
-    fig.set_size_inches(np.array(fig.get_size_inches()) * n_ims)
-    plt.show()
-
 def processCells(df, digitsModel, symbolsModel):
     rows = df.shape[0]
     cols = df.shape[1]
     code = ""
-    index = 1
-    print(rows)
+    print(rows, cols)
+    
     for i in range(1, rows):
         cell = df.iloc[i, 0]
-        top, bottom, left, right = 15, 9, 15, 10
+        
+        # If cell is a file path (string), load the image
+        if isinstance(cell, str):
+            cell = cv2.imread(cell, cv2.IMREAD_GRAYSCALE)
+            if cell is None:
+                raise ValueError(f"Image at path {df.iloc[i, 0]} could not be loaded.")
+
+        # Ensure cell is a valid NumPy array
+        if not isinstance(cell, np.ndarray):
+            raise ValueError(f"Cell at row {i} is not a valid image.")
+
+        top, bottom, left, right = 25, 9, 15, 10
         height, width = cell.shape[:2]
         cell = cell[top:height-bottom, left:width-right]
         cell = cv2.threshold(cell, 100, 255, cv2.THRESH_BINARY)[1]
@@ -39,17 +32,21 @@ def processCells(df, digitsModel, symbolsModel):
         MIN_AREA = 50  # Minimum area threshold for valid digits
         digit_contours = [cnt for cnt in contours if cv2.contourArea(cnt) > MIN_AREA]
         digit_contours = sorted(digit_contours, key=lambda c: cv2.boundingRect(c)[0])
-        for i, contour in enumerate(digit_contours):
+        
+        for j, contour in enumerate(digit_contours):
             x, y, w, h = cv2.boundingRect(contour)  # Bounding box
-            digit = cell[y:y+h, x:x+w]           # Crop the digit region
+            digit = cell[y:y+h, x:x+w]             # Crop the digit region
             digit = cv2.GaussianBlur(digit, (3, 3), 0)
             digit = cv2.threshold(digit, 100, 255, cv2.THRESH_BINARY)[1]
-            predection = predictGeneral(digit, digitsModel)
-            code += predection
-        show_images([cell], [code])
+            prediction = predictGeneral(digit, digitsModel)
+            code += prediction
+        
+        # Optionally display the processed image and code
+        
+        # Update DataFrame
         df.iloc[i, 0] = code
         code = ""
-       
+        
     for i in range(1, rows):
         for j in range(3, cols):
             cell = df.iloc[i, j]
@@ -67,13 +64,12 @@ def processCells(df, digitsModel, symbolsModel):
                 # cell = cv2.magnitude(cellX, cellY)
                 # cell = cv2.convertScaleAbs(cell)
                 #cell = cv2.threshold(cell, 100, 255, cv2.THRESH_BINARY)[1]
-                #  
+                
                 if(j==3):
                     predection = predictGeneral(cell, digitsModel)
                     #number = ord(predection) - ord('a') + 1 
                     number = ord(predection) - ord('0') 
                     df.iloc[i, j] = number
-                    #show_images([cell],[number])
                 else:
                     predection = predictGeneral(cell, symbolsModel)
                     if(predection=="T"):
