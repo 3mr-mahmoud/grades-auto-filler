@@ -1,14 +1,26 @@
 from gradeSheet.classifier.predict import predictGeneral
 import matplotlib.pyplot as plt
+from utils.commonfunctions import *
+
 import numpy as np
 import cv2
+
+def cropCell(cell, top_ratio=0.1, bottom_ratio=0.95, left_ratio=0.01, right_ratio=0.95):
+    height, width = cell.shape
+    # Calculate crop coordinates
+    left = int(left_ratio * width)
+    right = int(right_ratio * width)
+    top = int(top_ratio * height)
+    bottom = int(bottom_ratio * height)
+    result = cell[top:bottom, left:right]
+    return result
 
 
 def processCells(df, digitsModel, symbolsModel):
     rows = df.shape[0]
     cols = df.shape[1]
     code = ""
-    print(rows, cols)
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 1))
     
     for i in range(1, rows):
         cell = df.iloc[i, 0]
@@ -23,9 +35,12 @@ def processCells(df, digitsModel, symbolsModel):
         if not isinstance(cell, np.ndarray):
             raise ValueError(f"Cell at row {i} is not a valid image.")
 
-        top, bottom, left, right = 25, 9, 15, 10
-        height, width = cell.shape[:2]
-        cell = cell[top:height-bottom, left:width-right]
+        # top, bottom, left, right = 25, 9, 15, 10
+        # height, width = cell.shape[:2]
+        # cell = cell[top:height-bottom, left:width-right]
+        
+
+        cell = cropCell(cell, top_ratio=0.1, bottom_ratio=0.95, left_ratio=0.015, right_ratio=0.95)
         cell = cv2.threshold(cell, 100, 255, cv2.THRESH_BINARY)[1]
         cell = cv2.erode(cell, (3, 3), iterations=4)
         contours, _ = cv2.findContours(cell, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -44,19 +59,21 @@ def processCells(df, digitsModel, symbolsModel):
         # Optionally display the processed image and code
         
         # Update DataFrame
+
+        show_images([cell], ["Prediction: " + code])
         df.iloc[i, 0] = code
         code = ""
         
     for i in range(1, rows):
         for j in range(3, cols):
             cell = df.iloc[i, j]
-            top, bottom, left, right = 15, 9, 15, 10
-            height, width = cell.shape[:2]
-            cell = cell[top:height-bottom, left:width-right]
+            # top, bottom, left, right = 15, 9, 15, 10
+            # height, width = cell.shape[:2]
+            # cell = cell[top:height-bottom, left:width-right]
             if cell is not None:
-                right_crop = 100
-                left_crop = 100
-                cell = cell[:, left_crop:cell.shape[1]-right_crop]
+                # right_crop = 100
+                # left_crop = 100
+                # cell = cell[:, left_crop:cell.shape[1]-right_crop]
                 #cell = cv2.resize(cell, (28, 28), interpolation=cv2.INTER_CUBIC)
                 #cell = cv2.GaussianBlur(cell, (3, 3), 0)
                 # cellX = cv2.Sobel(cell, cv2.CV_64F, 1, 0, ksize=3)
@@ -64,13 +81,17 @@ def processCells(df, digitsModel, symbolsModel):
                 # cell = cv2.magnitude(cellX, cellY)
                 # cell = cv2.convertScaleAbs(cell)
                 #cell = cv2.threshold(cell, 100, 255, cv2.THRESH_BINARY)[1]
+                cell = cropCell(cell, left_ratio=0.3, right_ratio=0.8)
                 
                 if(j==3):
                     predection = predictGeneral(cell, digitsModel)
                     #number = ord(predection) - ord('a') + 1 
                     number = ord(predection) - ord('0') 
+                    show_images([cell], ["Prediction: " + predection])
                     df.iloc[i, j] = number
                 else:
+                    cell = cv2.dilate(cell, kernel, iterations=2)
+                    cell = cv2.erode(cell, kernel, iterations=1)
                     predection = predictGeneral(cell, symbolsModel)
                     if(predection=="T"):
                         df.iloc[i, j] = 5
@@ -87,6 +108,8 @@ def processCells(df, digitsModel, symbolsModel):
                             df.iloc[i, j] = 5 - number
                         else:
                             df.iloc[i, j] = number
+
+                    show_images([cell], ["Prediction: " + predection])
     return df
 
 

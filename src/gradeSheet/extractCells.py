@@ -114,8 +114,6 @@ def extract_cells(paper):
     ignoreCornerPoint = white_percentage > 82
     intersections = threshold_intersections(intersections,ignoreCornerPoint=ignoreCornerPoint)
 
-
-
     rows = len(intersections) - 1
     cols = len(intersections[0]) - 1
     df = pd.DataFrame(index=range(rows), columns=range(cols))
@@ -129,10 +127,10 @@ def extract_cells(paper):
             h = y2 - y1
             x = x1
             y = y1
-            cell_img = binary[y:y + h, x:x + w]
+
+            cell_img = grayPaper[y:y + h, x:x + w]
             cell_img = cv2.resize(cell_img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
-            cell_img = cv2.dilate(cell_img, kernel, iterations=2)
-            cell_img = cv2.erode(cell_img, kernel, iterations=1)
+            _ , cell_img = cv2.threshold(cell_img,200,255,cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
         
             df.iloc[i, j] = cell_img
 
