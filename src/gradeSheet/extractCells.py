@@ -117,7 +117,7 @@ def extract_cells(paper):
     rows = len(intersections) - 1
     cols = len(intersections[0]) - 1
     df = pd.DataFrame(index=range(rows), columns=range(cols))
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 1))
+    
     for i in range(rows):
         for j in range(len(intersections[i]) - 1):
             x1, y1 = intersections[i][j]
