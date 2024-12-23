@@ -6,7 +6,7 @@ import pandas as pd
 
 def houghLines(img, type):
     lines = cv.HoughLinesP(img.astype(np.uint8), 0.5, np.pi/180, 100,
-                           minLineLength=0.20*min(img.shape[0], img.shape[1]), maxLineGap=15)
+                           minLineLength=0.20*min(img.shape[0], img.shape[1]), maxLineGap=25)
 
     hough_lines_out = np.zeros(img.shape)
     for line in lines:
@@ -62,12 +62,12 @@ def threshold_intersections(pixels,ignoreCornerPoint= False, widthThresholdLow=1
             # diff in x should be greater than epsilon to consider it a new column
             if i == len(row)-1 or invertDirection:
                 if ( widthThresholdLow < (row[i][0] - row[i-1][0]) and (row[i][0] - row[i-1][0]) < widthThresholdHigh):
-                    if (ignoreCornerPoint and pixels.shape[1] > row[i][0] and row[i][0] > pixels.shape[1]-20):
+                    if (ignoreCornerPoint and pixels.shape[1] > row[i][0] and row[i][0] > pixels.shape[1]-35):
                         continue
                     elements.append(row[i])
             else:
                 if (widthThresholdLow < (row[i + 1][0] - row[i][0]) and (row[i + 1][0] - row[i][0]) < widthThresholdHigh):
-                    if (ignoreCornerPoint and ((0 < row[i][0] and row[i][0] < 20) or row[i + 1][0] > pixels.shape[1]-125)):
+                    if (ignoreCornerPoint and ((0 < row[i][0] and row[i][0] < 35) or row[i + 1][0] > pixels.shape[1]-125)):
                         continue
                     elements.append(row[i])
                     invertDirection = True
@@ -106,8 +106,8 @@ def extract_cells(paper):
     verticalLinesImg = houghLines(verticalLinesImg, "vertical")
 
     # Apply erosion then dilation to detect horizontal lines using the horizontal kernel
-    erodedImg = cv.erode(binary, horizontalKernelErode, iterations=1)
-    horizontalLinesImg = cv.dilate(erodedImg, horizontalKernel, iterations=2)
+    erodedImg = cv.erode(binary, horizontalKernelErode, iterations=2)
+    horizontalLinesImg = cv.dilate(erodedImg, horizontalKernel, iterations=3)
     show_images([horizontalLinesImg], ["horizontalLinesImg after opening"])
     horizontalLinesImg = houghLines(horizontalLinesImg, "horizontal")
 
