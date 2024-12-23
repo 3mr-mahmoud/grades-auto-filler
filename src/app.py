@@ -11,6 +11,7 @@ from gradeSheet.OCR import processCellsOCR
 from gradeSheet.classifier.train import train
 import joblib
 import os
+from bubbleSheet.final import process_bubble_sheet_gui
 
 # Paths to save trained models
 DIGITS_MODEL_PATH = 'digits_model.pkl'
@@ -83,7 +84,7 @@ if sheet_type == "Grade Sheet":
             st.dataframe(result)
 
             # Highlight cells with "red" and export to Excel
-            excel_path = "output.xlsx"
+            excel_path = "Grade sheet results.xlsx"
             with pd.ExcelWriter(excel_path, engine="openpyxl") as writer:
                 result.to_excel(writer, index=False, sheet_name="Sheet1")
                 workbook = writer.book
@@ -111,4 +112,27 @@ if sheet_type == "Grade Sheet":
                 )
 
 elif sheet_type == "Bubble Sheet":
-    st.info("Bubble Sheet processing functionality will be added in the future.")
+    uploaded_file = st.file_uploader("Upload an Image of the Bubble Sheet", type=["jpg", "jpeg", "png"])
+    uploaded_answers = st.file_uploader("Upload the Answer Key", type=["txt"])
+
+    if uploaded_file and uploaded_answers:
+        st.write("Processing...")
+        results_df = process_bubble_sheet_gui(uploaded_file, uploaded_answers)
+
+        if isinstance(results_df, pd.DataFrame):
+            st.write("Processing Complete!")
+            st.dataframe(results_df)
+
+            # Provide a download button for the results
+            excel_path = "bubble_sheet_results.xlsx"
+            results_df.to_excel(excel_path, index=False)
+
+            with open(excel_path, "rb") as file:
+                btn = st.download_button(
+                    label="Download Results",
+                    data=file,
+                    file_name="bubble_sheet_results.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
+        else:
+            st.error(f"Error: {results_df}")
