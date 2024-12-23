@@ -42,7 +42,7 @@ def processCells(df, digitsModel, symbolsModel):
 
         cell = cropCell(cell, top_ratio=0.1, bottom_ratio=0.95, left_ratio=0.015, right_ratio=0.95)
         cell = cv2.threshold(cell, 100, 255, cv2.THRESH_BINARY)[1]
-        cell = cv2.erode(cell, (3, 3), iterations=4)
+        #cell = cv2.erode(cell, (3, 3), iterations=4)
         contours, _ = cv2.findContours(cell, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         MIN_AREA = 50  # Minimum area threshold for valid digits
         digit_contours = [cnt for cnt in contours if cv2.contourArea(cnt) > MIN_AREA]
