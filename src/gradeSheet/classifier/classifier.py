@@ -33,6 +33,7 @@ def processCells(df, digitsModel, symbolsModel):
 
         # Ensure cell is a valid NumPy array
         if not isinstance(cell, np.ndarray):
+            print(cell)
             raise ValueError(f"Cell at row {i} is not a valid image.")
 
         # top, bottom, left, right = 25, 9, 15, 10
