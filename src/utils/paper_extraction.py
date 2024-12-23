@@ -1,25 +1,21 @@
 import cv2
 import numpy as np
 
-def extract_paper(image_path):
-    # Step 1: Load the image
-    image = cv2.imread(image_path, cv2.IMREAD_COLOR)
+def extract_paper(image):
+    # Step 1: Preprocess the image
     orig = image.copy()
-    
-    # Step 2: Preprocess the image
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    
     blurred = cv2.GaussianBlur(gray, (7, 7), 1)
     edged = cv2.Canny(blurred, 30, 255)
     
-    # we need to apply closing operation to close the gaps between the edges
-    kernel = np.ones((15,15),np.uint8)
-    dilated_img = cv2.dilate(edged,kernel,iterations=2)
-    erroded_img = cv2.erode(dilated_img,kernel,iterations=1)
+    # Apply closing operation to close the gaps between the edges
+    kernel = np.ones((15, 15), np.uint8)
+    dilated_img = cv2.dilate(edged, kernel, iterations=2)
+    erroded_img = cv2.erode(dilated_img, kernel, iterations=1)
 
-    contrours_img=np.copy(erroded_img)
+    contrours_img = np.copy(erroded_img)
 
-    # Step 3: Find contours
+    # Step 2: Find contours
     contours, _ = cv2.findContours(contrours_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contours = sorted(contours, key=cv2.contourArea, reverse=True)
 
@@ -38,7 +34,7 @@ def extract_paper(image_path):
         print("Paper contour not found!")
         return None
 
-    # Step 4: Apply a perspective transformation
+    # Step 3: Apply a perspective transformation
     def order_points(pts):
         rect = np.zeros((4, 2), dtype="float32")
         s = pts.sum(axis=1)
@@ -50,8 +46,6 @@ def extract_paper(image_path):
         rect[3] = pts[np.argmax(diff)]
         
         return rect
-
-    
 
     paper_contour = paper_contour.reshape(4, 2)
     rect = order_points(paper_contour)
