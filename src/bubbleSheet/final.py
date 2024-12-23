@@ -75,7 +75,7 @@ def process_image_for_cropping(gray_img, blurred_img, edged_img):#1
 
     # Find contours in the processed image
     contours, hierarchy = cv2.findContours(dilated_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-    print("Number of contours found:", len(contours))
+    # print("Number of contours found:", len(contours))
 
     # Create an image to draw contours on (colored version)
     contour_overlay = cv2.cvtColor(blurred_img, cv2.COLOR_GRAY2BGR)  # Convert to BGR
@@ -201,7 +201,7 @@ def process_image_for_final_output(white_img_contours, erodedImg2, erodedImg, im
 
     # Sort dimensions of contours by x-coordinate
     dimensions_contours = sorted(dimensions_contours, key=lambda dimension: dimension[0])
-    print("Dimensions of contours:", dimensions_contours)
+    # print("Dimensions of contours:", dimensions_contours)
 
     # Invert the mask so the valid contours are white and the rest is black
     inverted_mask = cv.bitwise_not(mask)
@@ -347,7 +347,7 @@ def detect_bubbles_watershed(image):
     num_rows = len(rows)
     num_cols = max(len(row) for row in rows)  # Use the longest row for num_cols
     
-    print(f"Detected grid size: {num_rows} rows x {num_cols} columns")
+    # print(f"Detected grid size: {num_rows} rows x {num_cols} columns")
     
     # Calculate average x-spacing
     x_spacings = []
@@ -388,8 +388,8 @@ def detect_bubbles_watershed(image):
         cv2.circle(visualization, (int(center[0]), int(center[1])), int(avg_radius), (255, 255, 255), -1)
     
     # show_images([visualization], ["images="])
-    print(f"Original circles: {len(initial_centers)}")
-    print(f"Total circles after completion: {len(centers)}")
+    # print(f"Original circles: {len(initial_centers)}")
+    # print(f"Total circles after completion: {len(centers)}")
     return num_rows, num_cols, centers, 255-visualization
 
 def process_images_with_bubbles( ID_contour_pattern,ID_contour_to_modify, croped_images_sorted_patterns, croped_images_sorted_to_modify):#4
@@ -433,7 +433,7 @@ def process_images_with_bubbles( ID_contour_pattern,ID_contour_to_modify, croped
         patterns_completed.append(pattern_completed)
         dimensions_questions.append((num_rows, num_cols, centers))
         # print(num_rows, num_cols, len(centers))
-    print("cols",dimensions_questions[0][1])    
+    # print("cols",dimensions_questions[0][1])    
     num_cols_list = [item[1] for item in dimensions_questions]
     max_cols = max(num_cols_list)
 
@@ -453,7 +453,7 @@ def process_images_with_bubbles( ID_contour_pattern,ID_contour_to_modify, croped
             dimensions_quest.append((row,cols ,center))
     patterns_completed=filtered_images
     dimensions_questions=dimensions_quest
-    show_images(patterns_completed)
+    # show_images(patterns_completed)
     num_cols=filtered_num_cols 
     centers=filtered_centers
     num_rows=filtered_num_rows
@@ -517,7 +517,7 @@ def find_answers(images, dimensions, multi_select_threshold=0.88):#6
     question_index = 0
     img_index = 0
     answers = []
-    show_images(images)
+    # show_images(images)
     # Iterate through each image
     for image in images:
         # Get rows, cols, and centers for the current image
@@ -632,7 +632,7 @@ def process_bubble_sheet_gui(image_file, answers_file):
             question_column = f"Q{i+1}"
             detected_answer = answers_detected[i][0].upper() if answers_detected[i] else ''
             results[question_column] = 1 if expected_answer == detected_answer else 0
-
+            
         # Create a DataFrame for display and saving
         df = pd.DataFrame([results])
         return df
