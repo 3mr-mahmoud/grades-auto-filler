@@ -47,14 +47,14 @@ def threshold_intersections(pixels,ignoreCornerPoint= False, widthThresholdLow=1
     for i in range(firstRowIndex, len(yPixels)-1):
         # diff in y should match the threshold to consider it a new row
         if (heightThresholdLow < (yPixels[i] - yPixels[i-1]) and (yPixels[i] - yPixels[i-1]) < heightThresholdHigh):
-            print("appending based on ", yPixels[i]- yPixels[i-1])
-            print("heightThresholdHigh", heightThresholdHigh)
             rows.append(yMap[yPixels[i]])
 
     # Now we need to threshold the columns i.e the x values
 
     allIntersections = []
     index = 0
+    widthThreshold = pixels.shape[1] // 25
+    print("widthThreshold", widthThreshold)
     for row in rows:
         invertDirection = False
         elements = []
@@ -62,12 +62,12 @@ def threshold_intersections(pixels,ignoreCornerPoint= False, widthThresholdLow=1
             # diff in x should be greater than epsilon to consider it a new column
             if i == len(row)-1 or invertDirection:
                 if ( widthThresholdLow < (row[i][0] - row[i-1][0]) and (row[i][0] - row[i-1][0]) < widthThresholdHigh):
-                    if (ignoreCornerPoint and pixels.shape[1] > row[i][0] and row[i][0] > pixels.shape[1]-35):
+                    if (ignoreCornerPoint and pixels.shape[1] > row[i][0] and row[i][0] > pixels.shape[1]-20):
                         continue
                     elements.append(row[i])
             else:
                 if (widthThresholdLow < (row[i + 1][0] - row[i][0]) and (row[i + 1][0] - row[i][0]) < widthThresholdHigh):
-                    if (ignoreCornerPoint and ((0 < row[i][0] and row[i][0] < 35) or row[i + 1][0] > pixels.shape[1]-125)):
+                    if (ignoreCornerPoint and ((0 < row[i][0] and row[i][0] < 20) or row[i + 1][0] > pixels.shape[1]-125)):
                         continue
                     elements.append(row[i])
                     invertDirection = True
@@ -142,10 +142,8 @@ def extract_cells(paper):
                 continue
             x1, y1 = intersections[i][j]
             x2, _ = intersections[i][j + 1]
-            print("i", i)
-            print("i range", rows-1)
-            print("j", j)
             
+
             _, y2 = intersections[i + 1][j]
             w = x2 - x1
             h = y2 - y1

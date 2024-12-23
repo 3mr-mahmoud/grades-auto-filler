@@ -78,7 +78,9 @@ if sheet_type == "Grade Sheet":
             # Drop unnecessary columns and clean up the result
             result = result.drop(result.columns[[1, 2]], axis=1)
             result = result.drop(index=0).reset_index(drop=True)
-            result.columns = ["Student ID", "1", "2", "3"]
+            column_names = ["Student ID"] + [str(i) for i in range(1, len(result.columns))]
+            result.columns = column_names
+            #result.columns = ["Student ID", "1", "2", "3"]
 
             st.write("Processed Results:")
             st.dataframe(result)
