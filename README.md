@@ -80,6 +80,7 @@ python -m pip freeze
 
 1. Launch the application:
    ```bash
+   cd ./src
    streamlit run app.py
    ```
 
