@@ -21,7 +21,7 @@ The `grade-auto-filler` application automates the process of grading using machi
 ### Step 1: Clone or Download the Repository
 ```bash
 # Clone the repository
-git clone <repository_url>
+git clone https://github.com/3mr-mahmoud/grades-auto-filler.git
 cd grade-auto-filler
 ```
 
